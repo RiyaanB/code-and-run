@@ -1,10 +1,12 @@
 from tkinter import *
+from time import sleep
 
 dark_gray = "#1e1e1e"
 gray = "#3f3f3f"
 light_gray = "#6f6f6f"
 white = "#ffffff"
 
+instruction_label = None
 var = None
 windows = []
 
@@ -82,6 +84,7 @@ def chose_python():
                        font=('Monospaced', 20))
     ok_button.place(x=335, y=400)
 
+    global instruction_label
     instruction_label = Label(root, text="Please enter a valid name for your python script", font=('Monospaced', 26),
                               background=gray, foreground=light_gray)
     instruction_label.place(x=300, y=250, anchor=CENTER)
@@ -91,9 +94,33 @@ def chose_python():
 
 def continue_python():
     if len(var.get()) > 3 and var.get()[-3:] == ".py":
-        print("Entered name =", var.get())
+        instruction_label.configure(text="So \"" + var.get() + "\" it is!", foreground="#FFFFFF")
+        global windows
+        for window in windows:
+            window.destroy()
+        root = Tk()
+
+        windows = [root]
     else:
-        print("Not a valid name!!!!!!!!!!!!!")
+        instruction_label.configure(text="Invalid Filename!!", foreground="#BB5555")
+        sleep(0.3)
+        windows[-1].update()
+        instruction_label.configure(text="Invalid Filename!!", foreground=light_gray)
+        sleep(0.3)
+        windows[-1].update()
+        instruction_label.configure(text="Invalid Filename!!", foreground="#BB5555")
+        sleep(0.3)
+        windows[-1].update()
+        instruction_label.configure(text="Invalid Filename!!", foreground=light_gray)
+        sleep(0.3)
+        windows[-1].update()
+        instruction_label.configure(text="Invalid Filename!!", foreground="#BB5555")
+        sleep(0.3)
+        windows[-1].update()
+        instruction_label.configure(text="Invalid Filename!!", foreground=light_gray)
+        sleep(0.3)
+        windows[-1].update()
+        instruction_label.configure(text="Please enter a valid name for your python script", foreground=light_gray)
 
 
 def chose_java():
