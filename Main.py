@@ -5,6 +5,7 @@ gray = "#3f3f3f"
 light_gray = "#6f6f6f"
 white = "#ffffff"
 
+var = None
 windows = []
 
 
@@ -65,23 +66,34 @@ def chose_python():
 
     python_dark_icon = PhotoImage(file="python_dark_icon.gif")
     image_label = Label(root, image=python_dark_icon)
-    image_label.place(x=300, y=100, anchor=CENTER)
+    image_label.place(x=300, y=120, anchor=CENTER)
 
+    global var
+    var = StringVar()
     file_name = Entry(root, width=25, font=('Monospaced', 28), background=light_gray, foreground="#121212",
-                      justify=CENTER)
-    file_name.place(x=300, y=250, anchor=CENTER)
+                      justify=CENTER, textvariable=var)
+    file_name.place(x=300, y=325, anchor=CENTER)
 
-    ok_button = Button(root, text="Continue", width=8, command=continue_python)
-    ok_button.place(x=300, y=400)
+    cancel_button = Button(root, text="Cancel", width=8, command=startup, justify=CENTER, background=dark_gray,
+                           font=('Monospaced', 20))
+    cancel_button.place(x=135, y=400)
 
-    cancel_button = Button(root, text="Cancel", width=8, command=startup, justify=CENTER)
-    cancel_button.place(x=100, y=400)
+    ok_button = Button(root, text="Continue", width=8, command=continue_python, background=dark_gray,
+                       font=('Monospaced', 20))
+    ok_button.place(x=335, y=400)
+
+    instruction_label = Label(root, text="Please enter a valid name for your python script", font=('Monospaced', 26),
+                              background=gray, foreground=light_gray)
+    instruction_label.place(x=300, y=250, anchor=CENTER)
 
     root.mainloop()
 
 
 def continue_python():
-    print("Name given...")
+    if len(var.get()) > 3 and var.get()[-3:] == ".py":
+        print("Entered name =", var.get())
+    else:
+        print("Not a valid name!!!!!!!!!!!!!")
 
 
 def chose_java():
