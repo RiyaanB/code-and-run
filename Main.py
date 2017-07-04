@@ -1,6 +1,8 @@
 from tkinter import *
 from tkinter.scrolledtext import ScrolledText
 from time import sleep
+import os
+import subprocess
 
 dark_gray = "#1e1e1e"
 gray = "#3f3f3f"
@@ -10,6 +12,7 @@ white = "#ffffff"
 instruction_label = None
 var = None
 py_editor = None
+py_output = None
 windows = []
 
 
@@ -123,8 +126,12 @@ def continue_python():
 
         run_button = Button(root, text="Run Code", width=8, command=run_python, background=dark_gray,
                             font=('Monospaced', 20))
-        run_button.place(x=1000, y=100)
-        print(py_editor.get(0.0, END))
+        run_button.place(x=950, y=20)
+
+        global py_output
+        py_output = ScrolledText(root, width=24, height=30, font=('Monospaced', 22), background=dark_gray,
+                                 foreground=light_gray, relief=SUNKEN, wrap=WORD)
+        py_output.place(x=950, y=40)
 
         root.mainloop()
 
@@ -163,7 +170,13 @@ def chose_java():
 
 
 def run_python():
-    print(py_editor.get(1.0, END)[:-1])
-
+    file = open(var.get(), "w")
+    file.write(py_editor.get(1.0, END)[:-1])
+    print("Wrote code to " + var.get())
+    sleep(1)
+    output = subprocess.check_output(["python3", "riyaan.py"])
+    os.system("python3 riyaan.py")
+    print(output)
+    print("Ended run")
 
 startup()
