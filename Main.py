@@ -1,4 +1,5 @@
 from tkinter import *
+from tkinter.scrolledtext import ScrolledText
 from time import sleep
 
 dark_gray = "#1e1e1e"
@@ -8,6 +9,7 @@ white = "#ffffff"
 
 instruction_label = None
 var = None
+py_editor = None
 windows = []
 
 
@@ -34,21 +36,32 @@ def startup():
 
     welcome_label = Label(root, text="Welcome!", highlightthickness=0, font=('Monospaced', 48),
                           background=gray, foreground=light_gray)
-    welcome_label.place(x=300, y=50, anchor=CENTER)
+    welcome_label.place(x=300, y=35, anchor=CENTER)
 
     py_image = PhotoImage(file="python_icon.gif")
     python_button = Button(root, height=200, width=200, image=py_image, command=chose_python)
-    python_button.place(x=75, y=115)
+    python_button.place(x=75, y=90)
 
     java_image = PhotoImage(file="java_icon.gif")
     java_button = Button(root, height=200, width=200, image=java_image, command=chose_java)
-    java_button.place(x=325, y=115)
+    java_button.place(x=325, y=90)
 
     question_label = Label(root, text="Which language will you use?", font=('Monospaced', 40),
                            background=gray, foreground=dark_gray)
-    question_label.place(x=300, y=375, anchor=CENTER)
+    question_label.place(x=300, y=350, anchor=CENTER)
+
+    exit_button = Button(root, text="Exit", width=8, command=close_all, background=dark_gray,
+                         font=('Monospaced', 20))
+    exit_button.place(x=300, y=415, anchor=CENTER)
 
     root.mainloop()
+
+
+def close_all():
+    global windows
+    for window in windows:
+        window.destroy()
+    quit()
 
 
 def chose_python():
@@ -99,6 +112,21 @@ def continue_python():
         for window in windows:
             window.destroy()
         root = Tk()
+        root.configure(background=gray)
+        root.resizable = False
+        root.geometry('%dx%d+%d+%d' % (root.winfo_screenwidth(), root.winfo_screenheight(), 0, 0))
+
+        global py_editor
+        py_editor = ScrolledText(root, width=64, height=32, font=('Monospaced', 22), background=light_gray,
+                                 foreground=dark_gray, relief=SUNKEN, undo=True, wrap=WORD)
+        py_editor.place(x=10, y=10)
+
+        run_button = Button(root, text="Run Code", width=8, command=run_python, background=dark_gray,
+                            font=('Monospaced', 20))
+        run_button.place(x=1000, y=100)
+        print(py_editor.get(0.0, END))
+
+        root.mainloop()
 
         windows = [root]
     else:
@@ -132,5 +160,10 @@ def chose_java():
     windows = [root]
 
     print("Chose java")
+
+
+def run_python():
+    print(py_editor.get(1.0, END)[:-1])
+
 
 startup()
