@@ -1,8 +1,9 @@
 from tkinter import *
 from tkinter.scrolledtext import ScrolledText
 from time import sleep
-import os
+import time
 import subprocess
+import traceback
 
 dark_gray = "#1e1e1e"
 gray = "#3f3f3f"
@@ -120,18 +121,18 @@ def continue_python():
         root.geometry('%dx%d+%d+%d' % (root.winfo_screenwidth(), root.winfo_screenheight(), 0, 0))
 
         global py_editor
-        py_editor = ScrolledText(root, width=64, height=32, font=('Monospaced', 22), background=light_gray,
+        py_editor = ScrolledText(root, width=64, height=29, font=('Monospaced', 22), background=light_gray,
                                  foreground=dark_gray, relief=SUNKEN, undo=True, wrap=WORD)
         py_editor.place(x=10, y=10)
 
-        run_button = Button(root, text="Run Code", width=8, command=run_python, background=dark_gray,
+        run_button = Button(root, text="Run Code", width=32, command=run_python, background=dark_gray,
                             font=('Monospaced', 20))
         run_button.place(x=950, y=20)
 
         global py_output
-        py_output = ScrolledText(root, width=24, height=30, font=('Monospaced', 22), background=dark_gray,
+        py_output = ScrolledText(root, width=45, height=38, font=('Monospaced', 16), background=dark_gray,
                                  foreground=light_gray, relief=SUNKEN, wrap=WORD)
-        py_output.place(x=950, y=40)
+        py_output.place(x=950, y=64)
 
         root.mainloop()
 
@@ -172,11 +173,14 @@ def chose_java():
 def run_python():
     file = open(var.get(), "w")
     file.write(py_editor.get(1.0, END)[:-1])
-    print("Wrote code to " + var.get())
-    sleep(1)
-    output = subprocess.check_output(["python3", "riyaan.py"])
-    os.system("python3 riyaan.py")
-    print(output)
-    print("Ended run")
+    file.close()
+    a = time.clock()
+    try:
+        output = subprocess.check_output(["python3", var.get()]).decode("UTF-8")
+    except Exception:
+        output = traceback.format_exc()
+    py_output.delete(1.0, END)
+    py_output.insert(END, output)
+    py_output.insert(END, "Program ended in " + str(time.clock()-a) + " seconds")
 
 startup()
