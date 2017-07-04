@@ -177,10 +177,11 @@ def run_python():
     a = time.clock()
     try:
         output = subprocess.check_output(["python3", var.get()]).decode("UTF-8")
-    except Exception:
+    except subprocess.CalledProcessError:
         output = traceback.format_exc()
     py_output.delete(1.0, END)
     py_output.insert(END, output)
     py_output.insert(END, "Program ended in " + str(time.clock()-a) + " seconds")
+
 
 startup()
