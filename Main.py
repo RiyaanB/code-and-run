@@ -42,11 +42,11 @@ def startup():
                           background=gray, foreground=light_gray)
     welcome_label.place(x=300, y=35, anchor=CENTER)
 
-    py_image = PhotoImage(file="python_icon.gif")
+    py_image = PhotoImage(file="images/python_icon.gif")
     python_button = Button(root, height=200, width=200, image=py_image, command=chose_python)
     python_button.place(x=75, y=90)
 
-    java_image = PhotoImage(file="java_icon.gif")
+    java_image = PhotoImage(file="images/java_icon.gif")
     java_button = Button(root, height=200, width=200, image=java_image, command=chose_java)
     java_button.place(x=325, y=90)
 
@@ -83,7 +83,7 @@ def chose_python():
     root.resizable = False
     windows = [root]
 
-    python_dark_icon = PhotoImage(file="python_dark_icon.gif")
+    python_dark_icon = PhotoImage(file="images/python_dark_icon.gif")
     image_label = Label(root, image=python_dark_icon)
     image_label.place(x=300, y=120, anchor=CENTER)
 
