@@ -229,7 +229,7 @@ def continue_java():
 
         global java_editor
         java_editor = ScrolledText(root, width=64, height=29, font=('Monospaced', 22), background=light_gray,
-                                 foreground=dark_gray, relief=SUNKEN, undo=True, wrap=WORD)
+                                   foreground=dark_gray, relief=SUNKEN, undo=True, wrap=WORD)
         java_editor.place(x=10, y=10)
 
         run_button = Button(root, text="Run Code", width=32, command=run_java, background=dark_gray,
@@ -238,7 +238,7 @@ def continue_java():
 
         global java_output
         java_output = ScrolledText(root, width=45, height=38, font=('Monospaced', 16), background=dark_gray,
-                                 foreground=light_gray, relief=SUNKEN, wrap=WORD)
+                                   foreground=light_gray, relief=SUNKEN, wrap=WORD)
         java_output.place(x=950, y=64)
 
         root.mainloop()
