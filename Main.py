@@ -14,6 +14,8 @@ instruction_label = None
 var = None
 py_editor = None
 py_output = None
+java_editor = None
+java_output = None
 windows = []
 
 
@@ -161,13 +163,43 @@ def continue_python():
 
 def chose_java():
     global windows
+    previous = windows[-1].winfo_rootx(), windows[-1].winfo_rooty()
+
     for window in windows:
         window.destroy()
 
+    print("Chose Java")
+
     root = Tk()
+    root.geometry('%dx%d+%d+%d' % (600, 450, previous[0], previous[1]-22))
+    root.configure(background=gray)
+    root.resizable = False
     windows = [root]
 
-    print("Chose java")
+    java_icon = PhotoImage(file="images/java_icon.gif")
+    image_label = Label(root, image=java_icon)
+    image_label.place(x=300, y=120, anchor=CENTER)
+
+    global var
+    var = StringVar()
+    file_name = Entry(root, width=25, font=('Monospaced', 28), background=light_gray, foreground="#121212",
+                      justify=CENTER, textvariable=var)
+    file_name.place(x=300, y=325, anchor=CENTER)
+
+    cancel_button = Button(root, text="Cancel", width=8, command=startup, justify=CENTER, background=dark_gray,
+                           font=('Monospaced', 20))
+    cancel_button.place(x=135, y=400)
+
+    ok_button = Button(root, text="Continue", width=8, command=continue_java, background=dark_gray,
+                       font=('Monospaced', 20))
+    ok_button.place(x=335, y=400)
+
+    global instruction_label
+    instruction_label = Label(root, text="Please enter a valid name for your main Java class", font=('Monospaced', 26),
+                              background=gray, foreground=light_gray)
+    instruction_label.place(x=300, y=250, anchor=CENTER)
+
+    root.mainloop()
 
 
 def run_python():
@@ -182,6 +214,71 @@ def run_python():
     py_output.delete(1.0, END)
     py_output.insert(END, output)
     py_output.insert(END, "Program ended in " + str(time.clock()-a) + " seconds")
+
+
+def continue_java():
+    if len(var.get()) > 5 and var.get()[-5:] == ".java":
+        instruction_label.configure(text="So \"" + var.get() + "\" it is!", foreground="#FFFFFF")
+        global windows
+        for window in windows:
+            window.destroy()
+        root = Tk()
+        root.configure(background=gray)
+        root.resizable = False
+        root.geometry('%dx%d+%d+%d' % (root.winfo_screenwidth(), root.winfo_screenheight(), 0, 0))
+
+        global java_editor
+        java_editor = ScrolledText(root, width=64, height=29, font=('Monospaced', 22), background=light_gray,
+                                 foreground=dark_gray, relief=SUNKEN, undo=True, wrap=WORD)
+        java_editor.place(x=10, y=10)
+
+        run_button = Button(root, text="Run Code", width=32, command=run_java, background=dark_gray,
+                            font=('Monospaced', 20))
+        run_button.place(x=950, y=20)
+
+        global java_output
+        java_output = ScrolledText(root, width=45, height=38, font=('Monospaced', 16), background=dark_gray,
+                                 foreground=light_gray, relief=SUNKEN, wrap=WORD)
+        java_output.place(x=950, y=64)
+
+        root.mainloop()
+
+        windows = [root]
+    else:
+        instruction_label.configure(text="Invalid Filename!!", foreground="#BB5555")
+        sleep(0.3)
+        windows[-1].update()
+        instruction_label.configure(text="Invalid Filename!!", foreground=light_gray)
+        sleep(0.3)
+        windows[-1].update()
+        instruction_label.configure(text="Invalid Filename!!", foreground="#BB5555")
+        sleep(0.3)
+        windows[-1].update()
+        instruction_label.configure(text="Invalid Filename!!", foreground=light_gray)
+        sleep(0.3)
+        windows[-1].update()
+        instruction_label.configure(text="Invalid Filename!!", foreground="#BB5555")
+        sleep(0.3)
+        windows[-1].update()
+        instruction_label.configure(text="Invalid Filename!!", foreground=light_gray)
+        sleep(0.3)
+        windows[-1].update()
+        instruction_label.configure(text="Please enter a valid name for the main java class", foreground=light_gray)
+
+
+def run_java():
+    file = open(var.get(), "w")
+    file.write(java_editor.get(1.0, END)[:-1])
+    file.close()
+    a = time.clock()
+    try:
+        subprocess.check_output(["javac", var.get()]).decode("UTF-8")
+        output = subprocess.check_output(["java", var.get()[:-5]]).decode("UTF-8")
+    except subprocess.CalledProcessError:
+        output = traceback.format_exc()
+    java_output.delete(1.0, END)
+    java_output.insert(END, output)
+    java_output.insert(END, "Program ended in " + str(time.clock()-a) + " seconds")
 
 
 startup()
