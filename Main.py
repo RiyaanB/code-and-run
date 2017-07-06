@@ -4,6 +4,7 @@ from time import sleep
 import time
 import subprocess
 import traceback
+import os
 
 dark_gray = "#1e1e1e"
 gray = "#3f3f3f"
@@ -273,6 +274,7 @@ def run_java():
     a = time.clock()
     try:
         subprocess.check_output(["javac", var.get()]).decode("UTF-8")
+        a = time.clock()
         output = subprocess.check_output(["java", var.get()[:-5]]).decode("UTF-8")
     except subprocess.CalledProcessError:
         output = traceback.format_exc()
@@ -280,5 +282,11 @@ def run_java():
     java_output.insert(END, output)
     java_output.insert(END, "Program ended in " + str(time.clock()-a) + " seconds")
 
-
-startup()
+try:
+    startup()
+finally:
+    if java_editor is not None:
+        os.system("rm " + var.get())
+        os.system("rm " + var.get()[:-5] + ".class")
+    elif py_editor is not None:
+        os.system("rm " + var.get())
