@@ -131,12 +131,13 @@ def continue_python():
 
         run_button = Button(root, text="Run Code", width=32, command=run_python, background=dark_gray,
                             font=('Monospaced', 20))
-        run_button.place(x=950, y=20)
+        run_button.place(x=980, y=20)
 
         global py_output
         py_output = ScrolledText(root, width=45, height=38, font=('Monospaced', 16), background=dark_gray,
                                  foreground=light_gray, relief=SUNKEN, wrap=WORD)
         py_output.place(x=950, y=64)
+        py_output.insert(END, "\n\tPlease press the run button to execute")
 
         root.mainloop()
 
@@ -227,12 +228,13 @@ def continue_java():
 
         run_button = Button(root, text="Run Code", width=32, command=run_java, background=dark_gray,
                             font=('Monospaced', 20))
-        run_button.place(x=950, y=20)
+        run_button.place(x=980, y=20)
 
         global java_output
         java_output = ScrolledText(root, width=45, height=38, font=('Monospaced', 16), background=dark_gray,
                                    foreground=light_gray, relief=SUNKEN, wrap=WORD)
         java_output.place(x=950, y=64)
+        java_output.insert(END, "\n\tPlease press the run button to execute")
 
         root.mainloop()
 
