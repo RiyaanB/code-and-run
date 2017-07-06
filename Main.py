@@ -127,6 +127,7 @@ def continue_python():
         py_editor = ScrolledText(root, width=64, height=29, font=('Monospaced', 22), background=light_gray,
                                  foreground=dark_gray, relief=SUNKEN, undo=True, wrap=WORD)
         py_editor.place(x=10, y=10)
+        py_editor.insert(END, "# Your code goes here")
 
         run_button = Button(root, text="Run Code", width=32, command=run_python, background=dark_gray,
                             font=('Monospaced', 20))
@@ -141,24 +142,13 @@ def continue_python():
 
         windows = [root]
     else:
-        instruction_label.configure(text="Invalid Filename!!", foreground="#BB5555")
-        sleep(0.3)
-        windows[-1].update()
-        instruction_label.configure(text="Invalid Filename!!", foreground=light_gray)
-        sleep(0.3)
-        windows[-1].update()
-        instruction_label.configure(text="Invalid Filename!!", foreground="#BB5555")
-        sleep(0.3)
-        windows[-1].update()
-        instruction_label.configure(text="Invalid Filename!!", foreground=light_gray)
-        sleep(0.3)
-        windows[-1].update()
-        instruction_label.configure(text="Invalid Filename!!", foreground="#BB5555")
-        sleep(0.3)
-        windows[-1].update()
-        instruction_label.configure(text="Invalid Filename!!", foreground=light_gray)
-        sleep(0.3)
-        windows[-1].update()
+        for a in range(3):
+            instruction_label.configure(text="Invalid Filename!!", foreground="#BB5555")
+            sleep(0.3)
+            windows[-1].update()
+            instruction_label.configure(text="Invalid Filename!!", foreground=light_gray)
+            sleep(0.3)
+            windows[-1].update()
         instruction_label.configure(text="Please enter a valid name for your python script", foreground=light_gray)
 
 
@@ -248,25 +238,13 @@ def continue_java():
 
         windows = [root]
     else:
-        windows[-1].update()
-        instruction_label.configure(text="Invalid Filename!!", foreground="#BB5555")
-        sleep(0.3)
-        windows[-1].update()
-        instruction_label.configure(text="Invalid Filename!!", foreground=light_gray)
-        sleep(0.3)
-        windows[-1].update()
-        instruction_label.configure(text="Invalid Filename!!", foreground="#BB5555")
-        sleep(0.3)
-        windows[-1].update()
-        instruction_label.configure(text="Invalid Filename!!", foreground=light_gray)
-        sleep(0.3)
-        windows[-1].update()
-        instruction_label.configure(text="Invalid Filename!!", foreground="#BB5555")
-        sleep(0.3)
-        windows[-1].update()
-        instruction_label.configure(text="Invalid Filename!!", foreground=light_gray)
-        sleep(0.3)
-        windows[-1].update()
+        for a in range(3):
+            instruction_label.configure(text="Invalid Filename!!", foreground="#BB5555")
+            sleep(0.3)
+            windows[-1].update()
+            instruction_label.configure(text="Invalid Filename!!", foreground=light_gray)
+            sleep(0.3)
+            windows[-1].update()
         instruction_label.configure(text="Please enter a valid name for the main java class", foreground=light_gray)
 
 
