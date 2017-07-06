@@ -178,7 +178,7 @@ def chose_java():
     windows = [root]
 
     java_icon = PhotoImage(file="images/java_icon.gif")
-    image_label = Label(root, image=java_icon)
+    image_label = Label(root, image=java_icon, height=200, width=200)
     image_label.place(x=300, y=120, anchor=CENTER)
 
     global var
@@ -232,6 +232,8 @@ def continue_java():
         java_editor = ScrolledText(root, width=64, height=29, font=('Monospaced', 22), background=light_gray,
                                    foreground=dark_gray, relief=SUNKEN, undo=True, wrap=WORD)
         java_editor.place(x=10, y=10)
+        java_editor.insert(END, "public class " + var.get()[:-5] + " {\n    public static void main(String[] args) " +
+                           "{\n        // Your code goes here\n    }\n}")
 
         run_button = Button(root, text="Run Code", width=32, command=run_java, background=dark_gray,
                             font=('Monospaced', 20))
@@ -246,6 +248,7 @@ def continue_java():
 
         windows = [root]
     else:
+        windows[-1].update()
         instruction_label.configure(text="Invalid Filename!!", foreground="#BB5555")
         sleep(0.3)
         windows[-1].update()
