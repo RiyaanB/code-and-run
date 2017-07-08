@@ -286,7 +286,6 @@ def run_java():
     file.write(java_editor.get(1.0, END)[:-1])
     file.close()
     a = time.clock()
-    # output = subprocess.check_output(["java", var.get()[:-5]]).decode("UTF-8")
     p = Popen(["java", var.get()[:-5]], stdin=PIPE, stdout=PIPE, stderr=PIPE)
     stdout, stderr = p.communicate(java_input.get(1.0, END)[:-1].encode("UTF-8"))
     output = stdout.decode("UTF-8") + stderr.decode("UTF-8")
@@ -302,3 +301,4 @@ finally:
         os.system("rm " + var.get()[:-5] + ".class")
     elif py_editor is not None:
         os.system("rm " + var.get())
+    
