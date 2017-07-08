@@ -302,23 +302,3 @@ finally:
         os.system("rm " + var.get()[:-5] + ".class")
     elif py_editor is not None:
         os.system("rm " + var.get())
-
-
-
-
-
-
-
-"""
-import java.util.Scanner;
-
-public class riyaan {
-    public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
-        for(int i = 0; i < 5; i++){
-            System.out.println((i+1) + " " + sc.next());
-        }
-    }
-}
-
-"""
