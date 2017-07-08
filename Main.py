@@ -3,6 +3,7 @@ from tkinter.scrolledtext import ScrolledText
 from time import sleep
 import time
 import subprocess
+from subprocess import Popen, PIPE
 import traceback
 import os
 
@@ -15,8 +16,10 @@ instruction_label = None
 var = None
 py_editor = None
 py_output = None
+py_input = None
 java_editor = None
 java_output = None
+java_input = None
 windows = []
 
 
@@ -134,10 +137,15 @@ def continue_python():
         run_button.place(x=980, y=20)
 
         global py_output
-        py_output = ScrolledText(root, width=45, height=38, font=('Monospaced', 16), background=dark_gray,
+        py_output = ScrolledText(root, width=45, height=24, font=('Monospaced', 16), background=dark_gray,
                                  foreground=light_gray, relief=SUNKEN, wrap=WORD)
         py_output.place(x=950, y=64)
         py_output.insert(END, "\n\tPlease press the run button to execute")
+
+        global py_input
+        py_input = ScrolledText(root, width=45, height=13, font=('Monospaced', 16), background=dark_gray,
+                                foreground=light_gray, relief=SUNKEN, wrap=WORD)
+        py_input.place(x=950, y=562)
 
         root.mainloop()
 
@@ -200,12 +208,14 @@ def run_python():
     file.close()
     a = time.clock()
     try:
-        output = subprocess.check_output(["python3", var.get()]).decode("UTF-8")
+        p = Popen(["python3", var.get()], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+        stdout, stderr = p.communicate(py_input.get(1.0, END)[:-1].encode("UTF-8"))
+        output = stdout.decode("UTF-8") + stderr.decode("UTF-8")
     except subprocess.CalledProcessError:
         output = traceback.format_exc()
     py_output.delete(1.0, END)
     py_output.insert(END, output)
-    py_output.insert(END, "Program ended in " + str(time.clock()-a) + " seconds")
+    py_output.insert(END, "\n\nProgram ended in " + str(time.clock()-a) + " seconds")
 
 
 def continue_java():
@@ -226,15 +236,23 @@ def continue_java():
         java_editor.insert(END, "public class " + var.get()[:-5] + " {\n    public static void main(String[] args) " +
                            "{\n        // Your code goes here\n    }\n}")
 
-        run_button = Button(root, text="Run Code", width=32, command=run_java, background=dark_gray,
+        run_button = Button(root, text="Run Code", width=16, command=run_java, background=dark_gray,
                             font=('Monospaced', 20))
-        run_button.place(x=980, y=20)
+        run_button.place(x=955, y=20)
 
+        compile_button = Button(root, text="Compile Code", width=16, command=compile_java, background=dark_gray,
+                                font=("Monospaced", 20))
+        compile_button.place(x=1190, y=20)
         global java_output
-        java_output = ScrolledText(root, width=45, height=38, font=('Monospaced', 16), background=dark_gray,
+        java_output = ScrolledText(root, width=45, height=24, font=('Monospaced', 16), background=dark_gray,
                                    foreground=light_gray, relief=SUNKEN, wrap=WORD)
         java_output.place(x=950, y=64)
         java_output.insert(END, "\n\tPlease press the run button to execute")
+
+        global java_input
+        java_input = ScrolledText(root, width=45, height=13, font=('Monospaced', 16), background=dark_gray,
+                                  foreground=light_gray, relief=SUNKEN, wrap=WORD)
+        java_input.place(x=950, y=562)
 
         root.mainloop()
 
@@ -250,17 +268,28 @@ def continue_java():
         instruction_label.configure(text="Please enter a valid name for the main java class", foreground=light_gray)
 
 
+def compile_java():
+    file = open(var.get(), "w")
+    file.write(java_editor.get(1.0, END)[:-1])
+    file.close()
+    a = time.clock()
+    p = Popen(["javac", var.get()], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+    stdout, stderr = p.communicate("".encode("UTF-8"))
+    output = stdout.decode("UTF-8") + stderr.decode("UTF-8")
+    java_output.delete(1.0, END)
+    java_output.insert(END, output)
+    java_output.insert(END, "Compilation ended in " + str(time.clock()-a) + " seconds")
+
+
 def run_java():
     file = open(var.get(), "w")
     file.write(java_editor.get(1.0, END)[:-1])
     file.close()
     a = time.clock()
-    try:
-        subprocess.check_output(["javac", var.get()]).decode("UTF-8")
-        a = time.clock()
-        output = subprocess.check_output(["java", var.get()[:-5]]).decode("UTF-8")
-    except subprocess.CalledProcessError:
-        output = traceback.format_exc()
+    # output = subprocess.check_output(["java", var.get()[:-5]]).decode("UTF-8")
+    p = Popen(["java", var.get()[:-5]], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+    stdout, stderr = p.communicate(java_input.get(1.0, END)[:-1].encode("UTF-8"))
+    output = stdout.decode("UTF-8") + stderr.decode("UTF-8")
     java_output.delete(1.0, END)
     java_output.insert(END, output)
     java_output.insert(END, "Program ended in " + str(time.clock()-a) + " seconds")
@@ -273,3 +302,23 @@ finally:
         os.system("rm " + var.get()[:-5] + ".class")
     elif py_editor is not None:
         os.system("rm " + var.get())
+
+
+
+
+
+
+
+"""
+import java.util.Scanner;
+
+public class riyaan {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        for(int i = 0; i < 5; i++){
+            System.out.println((i+1) + " " + sc.next());
+        }
+    }
+}
+
+"""
