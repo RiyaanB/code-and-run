@@ -301,4 +301,3 @@ finally:
         os.system("rm " + var.get()[:-5] + ".class")
     elif py_editor is not None:
         os.system("rm " + var.get())
-    
