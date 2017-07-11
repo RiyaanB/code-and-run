@@ -7,6 +7,7 @@ from subprocess import Popen, PIPE
 import traceback
 import os
 
+from TestCase import test_cases
 dark_gray = '#1e1e1e'
 gray = '#3f3f3f'
 light_gray = '#6f6f6f'
@@ -21,6 +22,28 @@ java_editor = None
 java_output = None
 java_input = None
 windows = []
+
+
+def evaluate():
+    cases = list()
+    if java_editor is not None:
+        for test_case in test_cases:
+            p = Popen(['java', var.get()[:-5]], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+            stdout, stderr = p.communicate(test_case.inputs.encode('UTF-8'))
+            output = "Exception" if not stderr.decode("UTF-8") == "" else stdout.decode("UTF-8")
+            if not len(output) == 0 and output[-1] == "\n":
+                output = output[:-1]
+            cases.append(output == test_case.output)
+        java_output.insert(END, "\n" + str(cases))
+    elif py_editor is not None:
+        for test_case in test_cases:
+            p = Popen(['python3', var.get()], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+            stdout, stderr = p.communicate(test_case.inputs.encode('UTF-8'))
+            output = "Exception" if not stderr.decode("UTF-8") == "" else stdout.decode("UTF-8")
+            if not len(output) == 0 and output[-1] == "\n":
+                output = output[:-1]
+            cases.append(output == test_case.output)
+        py_output.insert(END, "\n" + str(cases))
 
 
 def startup():
@@ -71,6 +94,7 @@ def close_all():
     global windows
     for window in windows:
         window.destroy()
+    windows = []
     quit()
 
 
@@ -132,9 +156,13 @@ def continue_python():
         py_editor.place(x=10, y=10)
         py_editor.insert(END, '# Your code goes here')
 
-        run_button = Button(root, text='Run Code', width=32, command=run_python, background=dark_gray,
+        run_button = Button(root, text='Run Code', width=16, command=run_python, background=dark_gray,
                             font=('Monospaced', 20))
-        run_button.place(x=980, y=20)
+        run_button.place(x=970, y=20)
+
+        check_button = Button(root, text="Run Code", width=16, command=evaluate, background=dark_gray,
+                              font=('Monospaced', 20))
+        check_button.place(x=1190, y=20)
 
         global py_output
         py_output = ScrolledText(root, width=45, height=24, font=('Monospaced', 16), background=dark_gray,
@@ -239,13 +267,18 @@ def continue_java():
         java_editor.insert(END, 'public class ' + var.get()[:-5] + ' {\n    public static void main(String[] args) ' +
                            '{\n        // Your code goes here\n    }\n}')
 
-        run_button = Button(root, text='Run Code', width=16, command=run_java, background=dark_gray,
+        run_button = Button(root, text='Run Code', width=10, command=run_java, background=dark_gray,
                             font=('Monospaced', 20))
         run_button.place(x=955, y=20)
 
-        compile_button = Button(root, text='Compile Code', width=16, command=compile_java, background=dark_gray,
+        compile_button = Button(root, text='Compile Code', width=10, command=compile_java, background=dark_gray,
                                 font=('Monospaced', 20))
-        compile_button.place(x=1190, y=20)
+        compile_button.place(x=1120, y=20)
+
+        check_button = Button(root, text="Check", width=9, command=evaluate, background=dark_gray,
+                              font=('Monospaced', 20))
+        check_button.place(x=1285, y=20)
+
         global java_output
         java_output = ScrolledText(root, width=45, height=24, font=('Monospaced', 16), background=dark_gray,
                                    foreground=light_gray, relief=SUNKEN, wrap=WORD)
@@ -301,11 +334,27 @@ if __name__ == '__main__':
     try:
         startup()
     finally:
-        close_all()
         if java_editor is not None:
             os.system('rm ' + var.get())
             os.system('rm ' + var.get()[:-5] + '.class')
         elif py_editor is not None:
             os.system('rm ' + var.get())
+        close_all()
 else:
     print('Sorry, please run the program directly!')
+
+
+"""
+import java.util.Scanner;
+
+public class riyaan {
+	public static void main(String[] args) throws Exception{
+		Scanner sc = new Scanner(System.in);
+		int a = sc.nextInt();
+		int b = sc.nextInt();
+		if ( a + b > 9 )
+			throw new Exception();
+		else
+			System.out.print(a+b);
+	}
+}"""
