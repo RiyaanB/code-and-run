@@ -178,7 +178,7 @@ def main_ui():
     if language == "python":
         editor.insert(END, '# Your code goes here')
     elif language == "java":
-        editor.insert(END, 'public class ' + name.get()[:-5] + ' {\n    public static void main(String[] args) ' +
+        editor.insert(END, 'public class ' + name.get()[:-5] + ' {\n    public static void main(String[] args) throws Exception()' +
                       '{\n        // Your code goes here\n    }\n}')
 
     run_button = Button(root, text='Run Code', width=10, command=run_code, background=dark_gray,
