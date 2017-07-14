@@ -1,5 +1,5 @@
 import sqlite3
-from TestCase import *
+from Question import *
 
 conn = sqlite3.connect('questions.sqlite')
 c = conn.cursor()
@@ -25,5 +25,5 @@ def end():
 
 if __name__ == "__main__":
     create_table()
-    add_question(b)
+    add_question(question1)
     end()

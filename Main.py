@@ -1,3 +1,4 @@
+import os
 from tkinter import *
 from time import sleep
 import time
@@ -95,7 +96,7 @@ def get_name():
     windows = [root]
 
     if language == "python":
-        icon = PhotoImage(file='images/python_dark_icon.gif')
+        icon = PhotoImage(file='images/python_icon.gif')
     else:
         icon = PhotoImage(file='images/java_icon.gif')
     image_label = Label(root, image=icon)
@@ -121,7 +122,7 @@ def get_name():
         instruction_label = Label(root, text='Please enter a valid name for your python script',
                                   font=('Monospaced', 26), background=gray, foreground=light_gray)
     else:
-        instruction_label = Label(root, text='Please enter a valid name main Java class', font=('Monospaced', 26),
+        instruction_label = Label(root, text='Please enter a valid Java filename', font=('Monospaced', 26),
                                   background=gray, foreground=light_gray)
 
     instruction_label.place(x=300, y=250, anchor=CENTER)
@@ -156,7 +157,7 @@ def name_invalid():
     if language == "python":
         instruction_label.configure(text='Please enter a valid name for your python script', foreground=light_gray)
     elif language == "java":
-        instruction_label.configure(text='Please enter a valid name for the main java class', foreground=light_gray)
+        instruction_label.configure(text='Please enter a valid Java filename', foreground=light_gray)
 
 
 def main_ui():
@@ -256,14 +257,22 @@ def evaluate_code():
         stdout, stderr = p.communicate(test_case.inputs.encode("UTF-8"))
         print(stderr.decode("UTF-8") == "")
         if stderr.decode("UTF-8") == "":
-            results.append((test_case.output in stdout.decode("UTF-8")) or (stdout.decode("UTF-8") in test_case.output))
+            if test_case.output == "null":
+                results.append(False)
+            else:
+                results.append(test_case.output == stdout.decode("UTF-8") or test_case.output == stdout.decode("UTF-8")[:-1])
         else:
             results.append(test_case.output == "null")
     output.delete(1.0, END)
     output.insert(END, str(results))
 
 
-startup()
+try:
+    startup()
+finally:
+    os.system("rm " + name.get())
+    if language == "java":
+        os.system("rm " + name.get()[:-4] + "class")
 
 
 """
