@@ -1,58 +1,38 @@
 from tkinter import *
-from tkinter.scrolledtext import ScrolledText
 from time import sleep
 import time
-import subprocess
+from tkinter.scrolledtext import ScrolledText
 from subprocess import Popen, PIPE
-import traceback
-import os
+from Question import *
 
-from TestCase import test_cases
 dark_gray = '#1e1e1e'
 gray = '#3f3f3f'
 light_gray = '#6f6f6f'
 white = '#ffffff'
 
+
+editor = None
+output = None
+inputs = None
+language = None
+name = None
+
 instruction_label = None
-var = None
-py_editor = None
-py_output = None
-py_input = None
-java_editor = None
-java_output = None
-java_input = None
 windows = []
 
 
-def evaluate():
-    cases = list()
-    if java_editor is not None:
-        for test_case in test_cases:
-            p = Popen(['java', var.get()[:-5]], stdin=PIPE, stdout=PIPE, stderr=PIPE)
-            stdout, stderr = p.communicate(test_case.inputs.encode('UTF-8'))
-            output = "Exception" if not stderr.decode("UTF-8") == "" else stdout.decode("UTF-8")
-            if not len(output) == 0 and output[-1] == "\n":
-                output = output[:-1]
-            cases.append(output == test_case.output)
-        java_output.insert(END, "\n" + str(cases))
-    elif py_editor is not None:
-        for test_case in test_cases:
-            p = Popen(['python3', var.get()], stdin=PIPE, stdout=PIPE, stderr=PIPE)
-            stdout, stderr = p.communicate(test_case.inputs.encode('UTF-8'))
-            output = "Exception" if not stderr.decode("UTF-8") == "" else stdout.decode("UTF-8")
-            if not len(output) == 0 and output[-1] == "\n":
-                output = output[:-1]
-            cases.append(output == test_case.output)
-        py_output.insert(END, "\n" + str(cases))
+def close_all_windows():
+    global windows
+    for window in windows:
+        window.destroy()
+    windows = []
 
 
 def startup():
     global windows
     previous_loc = None if len(windows) == 0 else (windows[-1].winfo_rootx(), windows[-1].winfo_rooty())
+    close_all_windows()
 
-    for window in windows:
-        window.destroy()
-    windows = []
     root = Tk()
     root.configure(background=gray)
     w = 600
@@ -83,139 +63,30 @@ def startup():
                            background=gray, foreground=dark_gray)
     question_label.place(x=300, y=350, anchor=CENTER)
 
-    exit_button = Button(root, text='Exit', width=8, command=close_all, background=dark_gray,
+    exit_button = Button(root, text='Exit', width=8, command=close_all_windows, background=dark_gray,
                          font=('Monospaced', 20))
     exit_button.place(x=300, y=415, anchor=CENTER)
 
     root.mainloop()
 
 
-def close_all():
-    global windows
-    for window in windows:
-        window.destroy()
-    windows = []
-    quit()
-
-
 def chose_python():
-    global windows
-    previous = windows[-1].winfo_rootx(), windows[-1].winfo_rooty()
-
-    for window in windows:
-        window.destroy()
-
-    print('Chose python')
-
-    root = Tk()
-    root.geometry('%dx%d+%d+%d' % (600, 450, previous[0], previous[1]-22))
-    root.configure(background=gray)
-    root.resizable = False
-    windows = [root]
-
-    python_dark_icon = PhotoImage(file='images/python_dark_icon.gif')
-    image_label = Label(root, image=python_dark_icon)
-    image_label.place(x=300, y=120, anchor=CENTER)
-
-    global var
-    var = StringVar()
-    file_name = Entry(root, width=25, font=('Monospaced', 28), background=light_gray, foreground='#121212',
-                      justify=CENTER, textvariable=var)
-    file_name.place(x=300, y=325, anchor=CENTER)
-
-    cancel_button = Button(root, text='Cancel', width=8, command=startup, justify=CENTER, background=dark_gray,
-                           font=('Monospaced', 20))
-    cancel_button.place(x=135, y=400)
-
-    ok_button = Button(root, text='Continue', width=8, command=continue_python, background=dark_gray,
-                       font=('Monospaced', 20))
-    ok_button.place(x=335, y=400)
-
-    global instruction_label
-    instruction_label = Label(root, text='Please enter a valid name for your python script', font=('Monospaced', 26),
-                              background=gray, foreground=light_gray)
-    instruction_label.place(x=300, y=250, anchor=CENTER)
-
-    root.mainloop()
-
-
-def continue_python():
-    if len(var.get()) > 3 and var.get()[-3:] == '.py':
-        instruction_label.configure(text='So \'' + var.get() + '\' it is!', foreground='#FFFFFF')
-        global windows
-        for window in windows:
-            window.destroy()
-        root = Tk()
-        root.configure(background=gray)
-        root.resizable = False
-        root.geometry('%dx%d+%d+%d' % (root.winfo_screenwidth(), root.winfo_screenheight(), 0, 0))
-
-        global py_editor
-        py_editor = ScrolledText(root, width=64, height=29, font=('Monospaced', 22), background=light_gray,
-                                 foreground=dark_gray, relief=SUNKEN, undo=True, wrap=WORD)
-        py_editor.place(x=10, y=10)
-        py_editor.insert(END, '# Your code goes here')
-
-        run_button = Button(root, text='Run Code', width=16, command=run_python, background=dark_gray,
-                            font=('Monospaced', 20))
-        run_button.place(x=970, y=20)
-
-        check_button = Button(root, text="Run Code", width=16, command=evaluate, background=dark_gray,
-                              font=('Monospaced', 20))
-        check_button.place(x=1190, y=20)
-
-        global py_output
-        py_output = ScrolledText(root, width=45, height=24, font=('Monospaced', 16), background=dark_gray,
-                                 foreground=light_gray, relief=SUNKEN, wrap=WORD)
-        py_output.place(x=950, y=64)
-        py_output.insert(END, '\n\tPlease press the run button to execute')
-
-        global py_input
-        py_input = ScrolledText(root, width=45, height=13, font=('Monospaced', 16), background=dark_gray,
-                                foreground=light_gray, relief=SUNKEN, wrap=WORD)
-        py_input.place(x=950, y=562)
-
-        root.mainloop()
-
-        windows = [root]
-    else:
-        for a in range(3):
-            instruction_label.configure(text='Invalid Filename!!', foreground='#BB5555')
-            sleep(0.3)
-            windows[-1].update()
-            instruction_label.configure(text='Invalid Filename!!', foreground=light_gray)
-            sleep(0.3)
-            windows[-1].update()
-        instruction_label.configure(text='Please enter a valid name for your python script', foreground=light_gray)
-
-
-def run_python():
-    file = open(var.get(), 'w')
-    file.write(py_editor.get(1.0, END)[:-1])
-    file.close()
-    a = time.clock()
-    try:
-        p = Popen(['python3', var.get()], stdin=PIPE, stdout=PIPE, stderr=PIPE)
-        stdout, stderr = p.communicate(py_input.get(1.0, END)[:-1].encode('UTF-8'))
-        output = stdout.decode('UTF-8') + stderr.decode('UTF-8')
-    except subprocess.CalledProcessError:
-        output = traceback.format_exc()
-    py_output.delete(1.0, END)
-    py_output.insert(END, output)
-    py_output.insert(END, '\n\nProgram ended in ' + str(time.clock()-a) + ' seconds')
-
-
-########################################################################################################################
+    global language
+    language = "python"
+    get_name()
 
 
 def chose_java():
+    global language
+    language = "java"
+    get_name()
+
+
+def get_name():
     global windows
     previous = windows[-1].winfo_rootx(), windows[-1].winfo_rooty()
 
-    for window in windows:
-        window.destroy()
-
-    print('Chose Java')
+    close_all_windows()
 
     root = Tk()
     root.geometry('%dx%d+%d+%d' % (600, 450, previous[0], previous[1]-22))
@@ -223,138 +94,183 @@ def chose_java():
     root.resizable = False
     windows = [root]
 
-    java_icon = PhotoImage(file='images/java_icon.gif')
-    image_label = Label(root, image=java_icon, height=200, width=200)
+    if language == "python":
+        icon = PhotoImage(file='images/python_dark_icon.gif')
+    else:
+        icon = PhotoImage(file='images/java_icon.gif')
+    image_label = Label(root, image=icon)
     image_label.place(x=300, y=120, anchor=CENTER)
 
-    global var
-    var = StringVar()
+    global name
+    name = StringVar()
     file_name = Entry(root, width=25, font=('Monospaced', 28), background=light_gray, foreground='#121212',
-                      justify=CENTER, textvariable=var)
+                      justify=CENTER, textvariable=name)
     file_name.place(x=300, y=325, anchor=CENTER)
 
     cancel_button = Button(root, text='Cancel', width=8, command=startup, justify=CENTER, background=dark_gray,
                            font=('Monospaced', 20))
     cancel_button.place(x=135, y=400)
 
-    ok_button = Button(root, text='Continue', width=8, command=continue_java, background=dark_gray,
+    ok_button = Button(root, text='Continue', width=8, command=verify_name, background=dark_gray,
                        font=('Monospaced', 20))
     ok_button.place(x=335, y=400)
 
     global instruction_label
-    instruction_label = Label(root, text='Please enter a valid name for your main Java class', font=('Monospaced', 26),
-                              background=gray, foreground=light_gray)
+    # global language
+    if language == "python":
+        instruction_label = Label(root, text='Please enter a valid name for your python script',
+                                  font=('Monospaced', 26), background=gray, foreground=light_gray)
+    else:
+        instruction_label = Label(root, text='Please enter a valid name main Java class', font=('Monospaced', 26),
+                                  background=gray, foreground=light_gray)
+
     instruction_label.place(x=300, y=250, anchor=CENTER)
 
     root.mainloop()
 
 
-def continue_java():
-    if len(var.get()) > 5 and var.get()[-5:] == '.java':
-        instruction_label.configure(text='So \'' + var.get() + '\' it is!', foreground='#FFFFFF')
-        global windows
-        for window in windows:
-            window.destroy()
-        root = Tk()
-        root.configure(background=gray)
-        root.resizable = False
-        root.geometry('%dx%d+%d+%d' % (root.winfo_screenwidth(), root.winfo_screenheight(), 0, 0))
+def verify_name():
+    global language
+    if language == "python":
+        if len(name.get()) > 3 and name.get()[-3:] == '.py':
+            main_ui()
+        else:
+            name_invalid()
+    elif language == "java":
+        if len(name.get()) > 5 and name.get()[-5:] == '.java':
+            main_ui()
+        else:
+            name_invalid()
 
-        global java_editor
-        java_editor = ScrolledText(root, width=64, height=29, font=('Monospaced', 22), background=light_gray,
-                                   foreground=dark_gray, relief=SUNKEN, undo=True, wrap=WORD)
-        java_editor.place(x=10, y=10)
-        java_editor.insert(END, 'public class ' + var.get()[:-5] + ' {\n    public static void main(String[] args) ' +
-                           '{\n        // Your code goes here\n    }\n}')
 
-        run_button = Button(root, text='Run Code', width=10, command=run_java, background=dark_gray,
-                            font=('Monospaced', 20))
-        run_button.place(x=955, y=20)
-
-        compile_button = Button(root, text='Compile Code', width=10, command=compile_java, background=dark_gray,
-                                font=('Monospaced', 20))
-        compile_button.place(x=1120, y=20)
-
-        check_button = Button(root, text="Check", width=9, command=evaluate, background=dark_gray,
-                              font=('Monospaced', 20))
-        check_button.place(x=1285, y=20)
-
-        global java_output
-        java_output = ScrolledText(root, width=45, height=24, font=('Monospaced', 16), background=dark_gray,
-                                   foreground=light_gray, relief=SUNKEN, wrap=WORD)
-        java_output.place(x=950, y=64)
-        java_output.insert(END, '\n\tPlease press the run button to execute')
-
-        global java_input
-        java_input = ScrolledText(root, width=45, height=13, font=('Monospaced', 16), background=dark_gray,
-                                  foreground=light_gray, relief=SUNKEN, wrap=WORD)
-        java_input.place(x=950, y=562)
-
-        root.mainloop()
-
-        windows = [root]
-    else:
-        for a in range(3):
-            instruction_label.configure(text='Invalid Filename!!', foreground='#BB5555')
-            sleep(0.3)
-            windows[-1].update()
-            instruction_label.configure(text='Invalid Filename!!', foreground=light_gray)
-            sleep(0.3)
-            windows[-1].update()
+def name_invalid():
+    global language
+    global instruction_label
+    for a in range(3):
+        instruction_label.configure(text='Invalid Filename!!', foreground='#BB5555')
+        sleep(0.3)
+        windows[-1].update()
+        instruction_label.configure(text='Invalid Filename!!', foreground=light_gray)
+        sleep(0.3)
+        windows[-1].update()
+    if language == "python":
+        instruction_label.configure(text='Please enter a valid name for your python script', foreground=light_gray)
+    elif language == "java":
         instruction_label.configure(text='Please enter a valid name for the main java class', foreground=light_gray)
 
 
-def compile_java():
-    file = open(var.get(), 'w')
-    file.write(java_editor.get(1.0, END)[:-1])
+def main_ui():
+    instruction_label.configure(text='So \'' + name.get() + '\' it is!', foreground='#FFFFFF')
+    global windows
+    for window in windows:
+        window.destroy()
+    root = Tk()
+    root.configure(background=gray)
+    root.resizable = False
+    root.geometry('%dx%d+%d+%d' % (root.winfo_screenwidth(), root.winfo_screenheight(), 0, 0))
+
+    global editor
+    editor = ScrolledText(root, width=64, height=29, font=('Monospaced', 22), background=light_gray,
+                          foreground=dark_gray, relief=SUNKEN, undo=True, wrap=WORD)
+    editor.place(x=10, y=10)
+
+    if language == "python":
+        editor.insert(END, '# Your code goes here')
+    elif language == "java":
+        editor.insert(END, 'public class ' + name.get()[:-5] + ' {\n    public static void main(String[] args) ' +
+                      '{\n        // Your code goes here\n    }\n}')
+
+    run_button = Button(root, text='Run Code', width=10, command=run_code, background=dark_gray,
+                        font=('Monospaced', 20))
+    run_button.place(x=955, y=20)
+
+    compile_button = Button(root, text='Compile Code', width=10, command=compile_code, background=dark_gray,
+                            font=('Monospaced', 20))
+    compile_button.place(x=1120, y=20)
+
+    if language == "python":
+        compile_button.config(state=DISABLED)
+
+    check_button = Button(root, text="Check", width=9, command=evaluate_code, background=dark_gray,
+                          font=('Monospaced', 20))
+    check_button.place(x=1285, y=20)
+
+    global output
+    output = ScrolledText(root, width=45, height=24, font=('Monospaced', 16), background=dark_gray,
+                          foreground=light_gray, relief=SUNKEN, wrap=WORD)
+    output.place(x=950, y=64)
+    output.insert(END, '\n\tPlease press the run button to execute')
+
+    global inputs
+    inputs = ScrolledText(root, width=45, height=13, font=('Monospaced', 16), background=dark_gray,
+                          foreground=light_gray, relief=SUNKEN, wrap=WORD)
+    inputs.place(x=950, y=562)
+
+    root.mainloop()
+
+    windows = [root]
+
+
+def compile_code():
+    if language == "java":
+        file = open(name.get(), 'w')
+        file.write(editor.get(1.0, END)[:-1])
+        file.close()
+        a = time.clock()
+        p = Popen(['javac', name.get()], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+        stdout, stderr = p.communicate(''.encode('UTF-8'))
+        compile_output = stdout.decode('UTF-8') + stderr.decode('UTF-8')
+        output.delete(1.0, END)
+        output.insert(END, compile_output)
+        output.insert(END, 'Compilation ended in ' + str(time.clock() - a) + ' seconds')
+
+
+def run_code():
+    file = open(name.get(), 'w')
+    file.write(editor.get(1.0, END)[:-1])
     file.close()
     a = time.clock()
-    p = Popen(['javac', var.get()], stdin=PIPE, stdout=PIPE, stderr=PIPE)
-    stdout, stderr = p.communicate(''.encode('UTF-8'))
-    output = stdout.decode('UTF-8') + stderr.decode('UTF-8')
-    java_output.delete(1.0, END)
-    java_output.insert(END, output)
-    java_output.insert(END, 'Compilation ended in ' + str(time.clock()-a) + ' seconds')
+    if language == "python":
+        p = Popen(['python3', name.get()], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+    elif language == "java":
+        p = Popen(['java', name.get()[:-5]], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+    stdout, stderr = p.communicate(inputs.get(1.0, END)[:-1].encode('UTF-8'))
+    run_output = stdout.decode('UTF-8') + stderr.decode('UTF-8')
+    output.delete(1.0, END)
+    output.insert(END, run_output)
+    output.insert(END, 'Program ended in ' + str(time.clock() - a) + ' seconds')
 
 
-def run_java():
-    file = open(var.get(), 'w')
-    file.write(java_editor.get(1.0, END)[:-1])
-    file.close()
-    a = time.clock()
-    p = Popen(['java', var.get()[:-5]], stdin=PIPE, stdout=PIPE, stderr=PIPE)
-    stdout, stderr = p.communicate(java_input.get(1.0, END)[:-1].encode('UTF-8'))
-    output = stdout.decode('UTF-8') + stderr.decode('UTF-8')
-    java_output.delete(1.0, END)
-    java_output.insert(END, output)
-    java_output.insert(END, 'Program ended in ' + str(time.clock()-a) + ' seconds')
+def evaluate_code():
+    print("Evaluating...")
+    test_cases = question1.test_cases
+    results = []
+    for test_case in test_cases:
+        file = open(name.get(), 'w')
+        file.write(editor.get(1.0, END)[:-1])
+        file.close()
+        if language == "python":
+            p = Popen(['python3', name.get()], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+        elif language == "java":
+            p = Popen(['java', name.get()[:-5]], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+        stdout, stderr = p.communicate(test_case.inputs.encode("UTF-8"))
+        print(stderr.decode("UTF-8") == "")
+        if stderr.decode("UTF-8") == "":
+            results.append((test_case.output in stdout.decode("UTF-8")) or (stdout.decode("UTF-8") in test_case.output))
+        else:
+            results.append(test_case.output == "null")
+    output.delete(1.0, END)
+    output.insert(END, str(results))
 
 
-if __name__ == '__main__':
-    try:
-        startup()
-    finally:
-        if java_editor is not None:
-            os.system('rm ' + var.get())
-            os.system('rm ' + var.get()[:-5] + '.class')
-        elif py_editor is not None:
-            os.system('rm ' + var.get())
-        close_all()
-else:
-    print('Sorry, please run the program directly!')
+startup()
 
 
 """
-import java.util.Scanner;
-
-public class riyaan {
-	public static void main(String[] args) throws Exception{
-		Scanner sc = new Scanner(System.in);
-		int a = sc.nextInt();
-		int b = sc.nextInt();
-		if ( a + b > 9 )
-			throw new Exception();
-		else
-			System.out.print(a+b);
-	}
-}"""
+a = int(input())
+b = int(input())
+if a+b > 9:
+	raise Exception()
+else:
+	print(a+b)
+"""
