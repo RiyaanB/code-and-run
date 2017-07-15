@@ -114,8 +114,8 @@ def startup():
     w = 600
     h = 450
     if previous_loc is None:
-        x = (root.winfo_screenwidth()/2) - (w/2)
-        y = (root.winfo_screenheight()/2) - (h/2) - 100
+        x = (1440/2) - (w/2)
+        y = (900/2) - (h/2) - 100
     else:
         x, y = previous_loc
     root.geometry('%dx%d+%d+%d' % (w, h, x, y - 22))
@@ -241,7 +241,7 @@ def main_ui(prev=None):
     root = Tk()
     root.configure(background=gray)
     root.resizable = False
-    root.geometry('%dx%d+%d+%d' % (root.winfo_screenwidth(), root.winfo_screenheight(), 0, 0))
+    root.geometry('%dx%d+%d+%d' % (1440, 900, 0, 0))
 
     global window
     window = root
