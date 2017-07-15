@@ -54,7 +54,7 @@ def choose_selected():
 def select_question():
     root = Tk()
     root.configure(background=gray)
-    root.geometry("600x431")
+    root.geometry('%dx%d+%d+%d' % (600, 430, 420, 235 - 22))
     root.resizable = False
 
     global window
