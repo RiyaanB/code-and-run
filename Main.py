@@ -252,9 +252,9 @@ def main_ui(prev=None):
     window = root
 
     global editor
-    editor = ScrolledText(root, width=64, height=26, font=('Monospaced', 22), background=light_gray,
+    editor = ScrolledText(root, width=64, height=25, font=('Monospaced', 22), background=light_gray,
                           foreground=dark_gray, relief=SUNKEN, undo=True, wrap=WORD)
-    editor.place(x=10, y=100)
+    editor.place(x=10, y=134)
 
     if language == "python":
         editor.insert(END, '# Your code goes here')
@@ -291,11 +291,11 @@ def main_ui(prev=None):
 
     choose_question = Button(root, text='Select Question', width=16, command=select_question, background=dark_gray,
                              font=('Monospaced', 20))
-    choose_question.place(x=20, y=10)
+    choose_question.place(x=20, y=6)
 
-    descr = Label(root, text=current_description, width=55, height=3, background=light_gray, foreground=dark_gray,
-                  font=('Monospaced', 20), wrap=True, wraplength=600)
-    descr.place(x=260, y=10)
+    descr = Label(root, width=60, height=5, text=current_description, background=light_gray, foreground=dark_gray,
+                  font=('Monospaced', 18), wrap=True, wraplength=640)
+    descr.place(x=260, y=6)
 
     if prev is not None:
         output.delete(1.0, END)
@@ -372,12 +372,3 @@ finally:
     if language == "java":
         os.system("rm " + name.get()[:-4] + "class")
 
-
-"""
-a = int(input())
-b = int(input())
-if a+b > 9:
-	raise Exception()
-else:
-	print(a+b)
-"""

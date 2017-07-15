@@ -90,6 +90,3 @@ class DatabaseConnection:
         result = self.cursor.fetchall()
         for r in result:
             print(r)
-
-database_connection = DatabaseConnection()
-database_connection.get_testcases("Beginners question")
