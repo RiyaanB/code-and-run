@@ -362,7 +362,13 @@ def evaluate_code():
         else:
             results.append(test_case.output == "null")
     output.delete(1.0, END)
-    output.insert(END, str(results))
+    evaluation = ""
+    passed = 0
+    for result in range(len(results)):
+        evaluation += "Test case " + str(result+1) + ": " + ("Passed" if results[result] else "Failed") + "\n"
+        passed += 1 if results[result] else 0
+    evaluation += "Result: Passed " + str(passed) + "/" + str(len(results)) + "\n"
+    output.insert(END, evaluation)
 
 
 try:
