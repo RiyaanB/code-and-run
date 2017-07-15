@@ -49,7 +49,7 @@ class DatabaseConnection:
         self.cursor.execute(command)
 
     def get_all_questions(self):
-        self.cursor.execute("SELECT * FROM questions ")
+        self.cursor.execute("SELECT qname FROM questions ")
         results = self.cursor.fetchall()
         questions = []
         for result in results:
@@ -60,5 +60,6 @@ class DatabaseConnection:
         command = "SELECT * from testcases WHERE qname='" + qname + "'"
         self.cursor.execute(command)
         query = self.cursor.fetchall()
-        print(query)
+        return query
+
 
