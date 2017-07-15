@@ -4,7 +4,6 @@ from time import sleep
 import time
 from tkinter.scrolledtext import ScrolledText
 from subprocess import Popen, PIPE
-from Question import *
 from Database import DatabaseConnection
 
 dark_gray = '#1e1e1e'
@@ -84,10 +83,6 @@ def select_question():
     listbox.pack(side=RIGHT, fill=BOTH)
 
     scrollbar.config(command=listbox.yview)
-
-    #global see_description
-    #see_description = Button(root, font=('Monospaced', 18), width=32, text="See description", command=get_description)
-    #see_description.pack(side=TOP)
 
     global description
     description = Label(root, font=('Monospaced', 18), width=32, height=17, background=light_gray, foreground=dark_gray)
