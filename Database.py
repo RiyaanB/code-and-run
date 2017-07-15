@@ -2,11 +2,11 @@ import psycopg2
 from Question import *
 
 file = open("credentials.txt", "r")
-host = file.readline()
-database = file.readline()
-user = file.readline()
-port = file.readline()
-password = file.readline()
+host = file.readline()[:-1]
+database = file.readline()[:-1]
+user = file.readline()[:-1]
+port = file.readline()[:-1]
+password = file.readline()[:-1]
 
 
 class DatabaseConnection:
@@ -32,8 +32,33 @@ class DatabaseConnection:
         attempts_table_command = "CREATE TABLE IF NOT EXISTS attempts(qname VARCHAR(256), student VARCHAR(256), time TIMESTAMP, successful INTEGER, total INTEGER )"
         self.cursor.execute(attempts_table_command)
 
-    def get_question_name(self):
+    def insert_question(self, question):
         self.cursor.execute("SELECT qname from questions")
-        return self.cursor.fetchall()
+        bool = (question.name,) not in self.cursor.fetchall()
+        if bool:
+            command = "INSERT INTO questions(qname, description) VALUES ('" + question.name + "', '" + question.description + "')"
+            self.cursor.execute(command)
+            for test_case in question.test_cases:
+                self.insert_testcase(test_case, question.name)
+            return True
+        else:
+            return False
 
+    def insert_testcase(self, test_case, qname):
+        command = "INSERT INTO testcases(qname, inputs, out) VALUES ('" + qname + "', '" + test_case.inputs + "', '" + test_case.output + "')"
+        self.cursor.execute(command)
+
+    def get_all_questions(self):
+        self.cursor.execute("SELECT * FROM questions ")
+        results = self.cursor.fetchall()
+        questions = []
+        for result in results:
+            questions.append(result[0])
+        return questions
+
+    def get_testcases(self, qname):
+        command = "SELECT * from testcases WHERE qname='" + qname + "'"
+        self.cursor.execute(command)
+        query = self.cursor.fetchall()
+        print(query)
 
