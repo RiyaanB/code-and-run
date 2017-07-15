@@ -20,6 +20,7 @@ language = None
 name = None
 
 current_question = None
+current_description = "Select a question!"
 
 instruction_label = None
 window = None
@@ -44,8 +45,9 @@ def get_description():
 
 
 def choose_selected():
-    global current_question
+    global current_question, current_description
     current_question = questions[listbox.curselection()[0]]
+    current_description = database_connection.get_description(current_question)
     window.destroy()
     main_ui((o, e, i))
 
@@ -92,7 +94,7 @@ def select_question():
     description.pack(side=TOP)
 
     global select
-    select = Button(root, font=('Monospaced', 18), width=32, text="Select question", state=DISABLED, command=choose_selected)
+    select = Button(root, font=('Monospaced', 18), width=32, text="Select question", command=choose_selected)
     select.pack(side=TOP)
     root.mainloop()
 
@@ -291,6 +293,10 @@ def main_ui(prev=None):
                              font=('Monospaced', 20))
     choose_question.place(x=20, y=10)
 
+    descr = Label(root, text=current_description, width=55, height=3, background=light_gray, foreground=dark_gray,
+                 font=('Monospaced', 20))
+    descr.place(x=260, y=10)
+
     if prev is not None:
         output.delete(1.0, END)
         output.insert(END, prev[0])
@@ -300,7 +306,6 @@ def main_ui(prev=None):
 
         inputs.delete(1.0, END)
         inputs.insert(END, prev[2])
-        prev = None
 
     root.mainloop()
 
