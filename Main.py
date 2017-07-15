@@ -37,7 +37,7 @@ e = None
 i = None
 
 
-def get_description():
+def get_description(evt=None):
     selected_name = questions[listbox.curselection()[0]]
     selected_description = database_connection.get_description(selected_name)
     description.config(text=selected_description, wrap=True, wraplength=260)
@@ -78,19 +78,19 @@ def select_question():
 
     global questions
     questions = database_connection.get_all_questions()
-    print(questions)
     for it in questions:
         listbox.insert(END, it)
+    listbox.bind("<<ListboxSelect>>", get_description)
     listbox.pack(side=RIGHT, fill=BOTH)
 
     scrollbar.config(command=listbox.yview)
 
-    global see_description
-    see_description = Button(root, font=('Monospaced', 18), width=32, text="See description", command=get_description)
-    see_description.pack(side=TOP)
+    #global see_description
+    #see_description = Button(root, font=('Monospaced', 18), width=32, text="See description", command=get_description)
+    #see_description.pack(side=TOP)
 
     global description
-    description = Label(root, font=('Monospaced', 18), width=32, height=16, background=light_gray, foreground=dark_gray)
+    description = Label(root, font=('Monospaced', 18), width=32, height=17, background=light_gray, foreground=dark_gray)
     description.pack(side=TOP)
 
     global select
@@ -252,15 +252,15 @@ def main_ui(prev=None):
     window = root
 
     global editor
-    editor = ScrolledText(root, width=64, height=29, font=('Monospaced', 22), background=light_gray,
+    editor = ScrolledText(root, width=64, height=26, font=('Monospaced', 22), background=light_gray,
                           foreground=dark_gray, relief=SUNKEN, undo=True, wrap=WORD)
     editor.place(x=10, y=100)
 
     if language == "python":
         editor.insert(END, '# Your code goes here')
     elif language == "java":
-        editor.insert(END, 'public class ' + name.get()[:-5] + ' {\n    public static void main(String[] args) throws Exception()' +
-                      '{\n        // Your code goes here\n    }\n}')
+        editor.insert(END, 'public class ' + name.get()[:-5] + ' {\n        public static void main(String[] args) throws Exception' +
+                      '{\n                // Your code goes here\n        }\n}')
 
     run_button = Button(root, text='Run Code', width=10, command=run_code, background=dark_gray,
                         font=('Monospaced', 20))
@@ -294,7 +294,7 @@ def main_ui(prev=None):
     choose_question.place(x=20, y=10)
 
     descr = Label(root, text=current_description, width=55, height=3, background=light_gray, foreground=dark_gray,
-                 font=('Monospaced', 20))
+                  font=('Monospaced', 20), wrap=True, wraplength=600)
     descr.place(x=260, y=10)
 
     if prev is not None:
@@ -341,7 +341,6 @@ def run_code():
 
 
 def evaluate_code():
-    print("Evaluating...")
     global database_connection
     database_connection = DatabaseConnection() if database_connection is None else database_connection
     test_cases = database_connection.get_testcases(current_question)
@@ -355,7 +354,6 @@ def evaluate_code():
         elif language == "java":
             p = Popen(['java', name.get()[:-5]], stdin=PIPE, stdout=PIPE, stderr=PIPE)
         stdout, stderr = p.communicate(test_case.inputs.encode("UTF-8"))
-        print(stderr.decode("UTF-8") == "")
         if stderr.decode("UTF-8") == "":
             if test_case.output == "null":
                 results.append(False)
