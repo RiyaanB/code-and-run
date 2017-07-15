@@ -57,9 +57,33 @@ class DatabaseConnection:
         return questions
 
     def get_testcases(self, qname):
-        command = "SELECT * from testcases WHERE qname='" + qname + "'"
+        command = "SELECT * FROM testcases WHERE qname='" + qname + "'"
         self.cursor.execute(command)
         query = self.cursor.fetchall()
         return query
 
+    def get_description(self, qname):
+        command = "SELECT description FROM questions WHERE qname='" + qname +"'"
+        self.cursor.execute(command)
+        return self.cursor.fetchall()[0][0]
 
+    def print_questions(self):
+        command = "SELECT * FROM questions"
+        self.cursor.execute(command)
+        result = self.cursor.fetchall()
+        for r in result:
+            print(r)
+
+    def print_testcases(self):
+        command = "SELECT * FROM testcases"
+        self.cursor.execute(command)
+        result = self.cursor.fetchall()
+        for r in result:
+            print(r)
+
+    def print_attempts(self):
+        command = "SELECT * FROM attempts"
+        self.cursor.execute(command)
+        result = self.cursor.fetchall()
+        for r in result:
+            print(r)

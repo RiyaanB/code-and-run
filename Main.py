@@ -161,7 +161,6 @@ def name_invalid():
 
 
 def main_ui():
-    instruction_label.configure(text='So \'' + name.get() + '\' it is!', foreground='#FFFFFF')
     global windows
     for window in windows:
         window.destroy()
