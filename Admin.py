@@ -1,5 +1,5 @@
 import psycopg2
-from Question import *
+
 
 file = open("credentials.txt", "r")
 host = file.readline()
@@ -32,8 +32,34 @@ class DatabaseConnection:
         attempts_table_command = "CREATE TABLE IF NOT EXISTS attempts(qname VARCHAR(256), student VARCHAR(256), time TIMESTAMP, successful INTEGER, total INTEGER )"
         self.cursor.execute(attempts_table_command)
 
-    def get_question_name(self):
+    def insert_question(self, question):
         self.cursor.execute("SELECT qname from questions")
-        return self.cursor.fetchall()
+        bool = (question.name,) not in self.cursor.fetchall()
+        if bool:
+            command = "INSERT INTO questions(qname, description) VALUES ('" + question.name + "', '" + question.description + "')"
+            self.cursor.execute(command)
+            for test_case in question.test_cases:
+                self.insert_testcase(test_case, question.name)
+            return True
+        else:
+            return False
 
+    def insert_testcase(self, test_case, qname):
+        command = "INSERT INTO testcases(qname, inputs, out) VALUES ('" + qname + "', '" + test_case.inputs + "', '" + test_case.output + "')"
+        self.cursor.execute(command)
 
+    def query_all_questions(self):
+        self.cursor.execute("SELECT * FROM questions ")
+        all_questions = self.cursor.fetchall()
+        return all_questions
+
+    def get_testcases(self, qname):
+        command = "SELECT * from testcases WHERE qname='" + qname + "'"
+        self.cursor.execute(command)
+        query = self.cursor.fetchall()
+        print(query)
+
+if __name__ == "__main__":
+    database_connection = DatabaseConnection()
+    database_connection.create_table()
+    pass
