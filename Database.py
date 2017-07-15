@@ -57,10 +57,13 @@ class DatabaseConnection:
         return questions
 
     def get_testcases(self, qname):
-        command = "SELECT * FROM testcases WHERE qname='" + qname + "'"
+        command = "SELECT inputs,out FROM testcases WHERE qname='" + qname + "'"
         self.cursor.execute(command)
         query = self.cursor.fetchall()
-        return query
+        testcases = []
+        for tc in query:
+            testcases.append(TestCase(tc[0], tc[1]))
+        return testcases
 
     def get_description(self, qname):
         command = "SELECT description FROM questions WHERE qname='" + qname +"'"
@@ -87,3 +90,6 @@ class DatabaseConnection:
         result = self.cursor.fetchall()
         for r in result:
             print(r)
+
+database_connection = DatabaseConnection()
+database_connection.get_testcases("Beginners question")

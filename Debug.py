@@ -32,8 +32,6 @@ def select_question():
     global root
     root = Tk()
     root.configure(background=gray)
-    w = 600
-    h = 450
     root.geometry("600x431")
     root.resizable = False
     scrollbar = Scrollbar(root)

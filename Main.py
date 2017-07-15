@@ -5,6 +5,7 @@ import time
 from tkinter.scrolledtext import ScrolledText
 from subprocess import Popen, PIPE
 from Question import *
+from Database import DatabaseConnection
 
 dark_gray = '#1e1e1e'
 gray = '#3f3f3f'
@@ -18,20 +19,97 @@ inputs = None
 language = None
 name = None
 
+current_question = None
+
 instruction_label = None
-windows = []
+window = None
+
+description = None
+see_description = None
+select = None
+database_connection = None
+questions = None
+listbox = None
+
+o = None
+e = None
+i = None
+
+
+def get_description():
+    selected_name = questions[listbox.curselection()[0]]
+    selected_description = database_connection.get_description(selected_name)
+    description.config(text=selected_description, wrap=True, wraplength=260)
+    select.config(state=NORMAL)
+
+
+def choose_selected():
+    global current_question
+    current_question = questions[listbox.curselection()[0]]
+    window.destroy()
+    main_ui((o, e, i))
+
+
+def select_question():
+    root = Tk()
+    root.configure(background=gray)
+    root.geometry("600x431")
+    root.resizable = False
+
+    global window
+    global o, e, i
+    o = output.get(1.0, END)
+    e = editor.get(1.0, END)
+    i = inputs.get(1.0, END)
+    window.destroy()
+    window = root
+
+    scrollbar = Scrollbar(root)
+    scrollbar.pack(side=RIGHT, fill=Y)
+
+    global listbox
+    listbox = Listbox(root, width=20, height=30, yscrollcommand=scrollbar.set, font=('Monospaced', 18),
+                      background=dark_gray, foreground=light_gray)
+
+    global database_connection
+    database_connection = DatabaseConnection() if database_connection is None else database_connection
+
+    global questions
+    questions = database_connection.get_all_questions()
+    print(questions)
+    for it in questions:
+        listbox.insert(END, it)
+    listbox.pack(side=RIGHT, fill=BOTH)
+
+    scrollbar.config(command=listbox.yview)
+
+    global see_description
+    see_description = Button(root, font=('Monospaced', 18), width=32, text="See description", command=get_description)
+    see_description.pack(side=TOP)
+
+    global description
+    description = Label(root, font=('Monospaced', 18), width=32, height=16, background=light_gray, foreground=dark_gray)
+    description.pack(side=TOP)
+
+    global select
+    select = Button(root, font=('Monospaced', 18), width=32, text="Select question", state=DISABLED, command=choose_selected)
+    select.pack(side=TOP)
+    root.mainloop()
 
 
 def close_all_windows():
-    global windows
-    for window in windows:
-        window.destroy()
-    windows = []
+    try:
+        global window
+        if window is not None:
+            window.destroy()
+            window = None
+    except:
+        pass
 
 
 def startup():
-    global windows
-    previous_loc = None if len(windows) == 0 else (windows[-1].winfo_rootx(), windows[-1].winfo_rooty())
+    global window
+    previous_loc = None if window is None else (window.winfo_rootx(), window.winfo_rooty())
     close_all_windows()
 
     root = Tk()
@@ -46,7 +124,7 @@ def startup():
     root.geometry('%dx%d+%d+%d' % (w, h, x, y - 22))
     root.resizable(False, False)
 
-    windows.append(root)
+    window = root
 
     welcome_label = Label(root, text='Welcome!', highlightthickness=0, font=('Monospaced', 48),
                           background=gray, foreground=light_gray)
@@ -84,8 +162,8 @@ def chose_java():
 
 
 def get_name():
-    global windows
-    previous = windows[-1].winfo_rootx(), windows[-1].winfo_rooty()
+    global window
+    previous = window.winfo_rootx(), window.winfo_rooty()
 
     close_all_windows()
 
@@ -93,7 +171,7 @@ def get_name():
     root.geometry('%dx%d+%d+%d' % (600, 450, previous[0], previous[1]-22))
     root.configure(background=gray)
     root.resizable = False
-    windows = [root]
+    window = root
 
     if language == "python":
         icon = PhotoImage(file='images/python_icon.gif')
@@ -147,32 +225,34 @@ def verify_name():
 def name_invalid():
     global language
     global instruction_label
+    global window
     for a in range(3):
         instruction_label.configure(text='Invalid Filename!!', foreground='#BB5555')
         sleep(0.3)
-        windows[-1].update()
+        window.update()
         instruction_label.configure(text='Invalid Filename!!', foreground=light_gray)
         sleep(0.3)
-        windows[-1].update()
+        window.update()
     if language == "python":
         instruction_label.configure(text='Please enter a valid name for your python script', foreground=light_gray)
     elif language == "java":
         instruction_label.configure(text='Please enter a valid Java filename', foreground=light_gray)
 
 
-def main_ui():
-    global windows
-    for window in windows:
-        window.destroy()
+def main_ui(prev=None):
+    close_all_windows()
     root = Tk()
     root.configure(background=gray)
     root.resizable = False
     root.geometry('%dx%d+%d+%d' % (root.winfo_screenwidth(), root.winfo_screenheight(), 0, 0))
 
+    global window
+    window = root
+
     global editor
     editor = ScrolledText(root, width=64, height=29, font=('Monospaced', 22), background=light_gray,
                           foreground=dark_gray, relief=SUNKEN, undo=True, wrap=WORD)
-    editor.place(x=10, y=10)
+    editor.place(x=10, y=100)
 
     if language == "python":
         editor.insert(END, '# Your code goes here')
@@ -194,6 +274,7 @@ def main_ui():
     check_button = Button(root, text="Check", width=9, command=evaluate_code, background=dark_gray,
                           font=('Monospaced', 20))
     check_button.place(x=1285, y=20)
+    check_button.config(state=NORMAL if current_question is not None else DISABLED)
 
     global output
     output = ScrolledText(root, width=45, height=24, font=('Monospaced', 16), background=dark_gray,
@@ -206,9 +287,22 @@ def main_ui():
                           foreground=light_gray, relief=SUNKEN, wrap=WORD)
     inputs.place(x=950, y=562)
 
-    root.mainloop()
+    choose_question = Button(root, text='Select Question', width=16, command=select_question, background=dark_gray,
+                             font=('Monospaced', 20))
+    choose_question.place(x=20, y=10)
 
-    windows = [root]
+    if prev is not None:
+        output.delete(1.0, END)
+        output.insert(END, prev[0])
+
+        editor.delete(1.0, END)
+        editor.insert(END, prev[1])
+
+        inputs.delete(1.0, END)
+        inputs.insert(END, prev[2])
+        prev = None
+
+    root.mainloop()
 
 
 def compile_code():
@@ -243,7 +337,9 @@ def run_code():
 
 def evaluate_code():
     print("Evaluating...")
-    test_cases = question1.test_cases
+    global database_connection
+    database_connection = DatabaseConnection() if database_connection is None else database_connection
+    test_cases = database_connection.get_testcases(current_question)
     results = []
     for test_case in test_cases:
         file = open(name.get(), 'w')
