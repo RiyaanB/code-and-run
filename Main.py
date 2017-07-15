@@ -288,9 +288,9 @@ def main_ui(prev=None):
                              font=('Monospaced', 20))
     choose_question.place(x=20, y=6)
 
-    descr = Label(root, width=60, height=5, text=current_description, background=light_gray, foreground=dark_gray,
-                  font=('Monospaced', 18), wrap=True, wraplength=640)
-    descr.place(x=260, y=6)
+    desc = Label(root, width=60, height=5, text=current_description, background=light_gray, foreground=dark_gray,
+                 font=('Monospaced', 18), wrap=True, wraplength=640)
+    desc.place(x=260, y=6)
 
     if prev is not None:
         output.delete(1.0, END)
@@ -323,6 +323,7 @@ def run_code():
     file = open(name.get(), 'w')
     file.write(editor.get(1.0, END)[:-1])
     file.close()
+    p = None
     a = time.clock()
     if language == "python":
         p = Popen(['python3', name.get()], stdin=PIPE, stdout=PIPE, stderr=PIPE)
@@ -344,6 +345,7 @@ def evaluate_code():
         file = open(name.get(), 'w')
         file.write(editor.get(1.0, END)[:-1])
         file.close()
+        p = None
         if language == "python":
             p = Popen(['python3', name.get()], stdin=PIPE, stdout=PIPE, stderr=PIPE)
         elif language == "java":
@@ -372,4 +374,3 @@ finally:
     os.system("rm " + name.get())
     if language == "java":
         os.system("rm " + name.get()[:-4] + "class")
-

@@ -91,4 +91,3 @@ class DatabaseConnection:
         for r in result:
             print(r)
 
-#    def insert_attempt(self, student_name):
