@@ -192,7 +192,6 @@ def get_name():
     ok_button.place(x=335, y=400)
 
     global instruction_label
-    #global language
     if language == "python":
         instruction_label = Label(root, text='Please enter a valid name for your python script',
                                   font=('Monospaced', 26), background=gray, foreground=light_gray)
@@ -364,6 +363,7 @@ def evaluate_code():
         evaluation += "Test case " + str(result+1) + ": " + ("Passed" if results[result] else "Failed") + "\n"
         passed += 1 if results[result] else 0
     evaluation += "Result: Passed " + str(passed) + "/" + str(len(results)) + "\n"
+    database_connection.insert_attempt(current_question, std_name, str(passed))
     output.insert(END, evaluation)
 
 

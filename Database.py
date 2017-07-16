@@ -1,5 +1,7 @@
 import psycopg2
 from Question import *
+import time
+import datetime
 
 file = open("credentials.txt", "r")
 host = file.readline()[:-1]
@@ -29,7 +31,7 @@ class DatabaseConnection:
         self.cursor.execute(questions_table_command)
         testcases_table_command = "CREATE TABLE IF NOT EXISTS testcases(qid VARCHAR(256) , inputs VARCHAR(256), out VARCHAR(256))"
         self.cursor.execute(testcases_table_command)
-        attempts_table_command = "CREATE TABLE IF NOT EXISTS attempts(qid VARCHAR(256), student VARCHAR(256), time TIMESTAMP, successful INTEGER, total INTEGER )"
+        attempts_table_command = "CREATE TABLE IF NOT EXISTS attempts(qid VARCHAR(256), student VARCHAR(256), time TIMESTAMP, successful INTEGER)"
         self.cursor.execute(attempts_table_command)
 
     def insert_question(self, question):
@@ -49,6 +51,14 @@ class DatabaseConnection:
 
     def insert_testcase(self, test_case, my_id):
         command = "INSERT INTO testcases(qid, inputs, out) VALUES ('" + str(my_id) + "', '" + test_case.inputs + "', '" + test_case.output + "')"
+        self.cursor.execute(command)
+
+    def insert_attempt(self, qname, std_name, successful):
+        timestamp = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
+        command = "SELECT id FROM questions WHERE qname='" + qname + "'"
+        self.cursor.execute(command)
+        qid = self.cursor.fetchall()[0][0]
+        command = "INSERT INTO attempts(qid, student, time, successful) VALUES ('" + str(qid) + "', '" + std_name + "', '" + timestamp + "', '" + str(successful) + "')"
         self.cursor.execute(command)
 
     def get_all_questions(self):
@@ -97,3 +107,5 @@ class DatabaseConnection:
         for r in result:
             print(r)
 
+
+DatabaseConnection().print_attempts()
