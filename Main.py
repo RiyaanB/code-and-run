@@ -28,7 +28,7 @@ window = None
 description = None
 see_description = None
 select = None
-database_connection = None
+database_connection = DatabaseConnection()
 questions = None
 listbox = None
 
@@ -74,7 +74,6 @@ def select_question():
                       background=dark_gray, foreground=light_gray)
 
     global database_connection
-    database_connection = DatabaseConnection() if database_connection is None else database_connection
 
     global questions
     questions = database_connection.get_all_questions()
@@ -339,7 +338,6 @@ def run_code():
 
 def evaluate_code():
     global database_connection
-    database_connection = DatabaseConnection() if database_connection is None else database_connection
     test_cases = database_connection.get_testcases(current_question)
     results = []
     for test_case in test_cases:
