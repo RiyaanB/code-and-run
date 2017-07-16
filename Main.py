@@ -28,13 +28,16 @@ window = None
 description = None
 see_description = None
 select = None
-database_connection = DatabaseConnection()
 questions = None
 listbox = None
 
 o = None
 e = None
 i = None
+
+
+def close_select_question():
+    main_ui((o, e, i))
 
 
 def get_description(evt=None):
@@ -57,7 +60,7 @@ def select_question():
     root.configure(background=gray)
     root.geometry('%dx%d+%d+%d' % (600, 430, 420, 235 - 22))
     root.resizable = False
-
+    root.protocol("WM_DELETE_WINDOW", close_select_question)
     global window
     global o, e, i
     o = output.get(1.0, END)
@@ -287,7 +290,7 @@ def main_ui(prev=None):
                              font=('Monospaced', 20))
     choose_question.place(x=20, y=6)
 
-    desc = Label(root, width=60, height=5, text=current_description, background=light_gray, foreground=dark_gray,
+    desc = Label(root, width=55, height=5, text=current_description, background=light_gray, foreground=dark_gray,
                  font=('Monospaced', 18), wrap=True, wraplength=640)
     desc.place(x=260, y=6)
 
@@ -428,6 +431,7 @@ def get_std_name():
 
 
 try:
+    database_connection = DatabaseConnection()
     get_std_name()
 finally:
     os.system("rm " + name.get())

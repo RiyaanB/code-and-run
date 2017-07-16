@@ -3,7 +3,7 @@ from Question import *
 import time
 import datetime
 
-file = open("credentials.txt", "r")
+file = open("../credentials.txt", "r")
 host = file.readline()[:-1]
 database = file.readline()[:-1]
 user = file.readline()[:-1]
@@ -107,5 +107,3 @@ class DatabaseConnection:
         for r in result:
             print(r)
 
-
-DatabaseConnection().print_attempts()
