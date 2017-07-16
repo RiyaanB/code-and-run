@@ -17,6 +17,7 @@ output = None
 inputs = None
 language = None
 name = None
+std_name = None
 
 current_question = None
 current_description = "Select a question!"
@@ -192,7 +193,7 @@ def get_name():
     ok_button.place(x=335, y=400)
 
     global instruction_label
-    # global language
+    #global language
     if language == "python":
         instruction_label = Label(root, text='Please enter a valid name for your python script',
                                   font=('Monospaced', 26), background=gray, foreground=light_gray)
@@ -368,8 +369,68 @@ def evaluate_code():
     output.insert(END, evaluation)
 
 
+def verify_std_name():
+    global std_name, window
+    std_string = std_name.get()
+    if len(std_string) > 4 and 1 < len(std_string.split()) < 3:
+        std_name = std_string
+        close_all_windows()
+        startup()
+    else:
+        if not len(std_string) > 4:
+            for a in range(3):
+                instruction_label.configure(text='Name is not long enough! Add last name too!', foreground='#BB5555')
+                sleep(0.3)
+                window.update()
+                instruction_label.configure(text='Name is not long enough! Add last name too!', foreground=light_gray)
+                sleep(0.3)
+                window.update()
+        else:
+            for a in range(3):
+                instruction_label.configure(text='Please enter Name and Lastname only!', foreground='#BB5555')
+                sleep(0.3)
+                window.update()
+                instruction_label.configure(text='Please enter Name and Lastname only!', foreground=light_gray)
+                sleep(0.3)
+                window.update()
+        instruction_label.configure(text="Please enter your Name and Lastname:")
+
+
+def get_std_name():
+    global window
+    close_all_windows()
+    root = Tk()
+    root.geometry('%dx%d+%d+%d' % (600, 250, 420, 200))
+    root.configure(background=gray)
+    root.resizable = False
+    window = root
+
+    global std_name
+    std_name = StringVar()
+    file_name = Entry(root, width=25, font=('Monospaced', 28), background=light_gray, foreground='#121212',
+                      justify=CENTER, textvariable=std_name)
+    file_name.place(x=300, y=125, anchor=CENTER)
+
+    cancel_button = Button(root, text='Cancel', width=8, command=close_all_windows, justify=CENTER, background=dark_gray,
+                           font=('Monospaced', 20))
+    cancel_button.place(x=135, y=200)
+
+    ok_button = Button(root, text='Continue', width=8, command=verify_std_name, background=dark_gray,
+                       font=('Monospaced', 20))
+    ok_button.place(x=335, y=200)
+
+    global instruction_label
+    global language
+    instruction_label = Label(root, text='Please enter your name:',
+                              font=('Monospaced', 26), background=gray, foreground=light_gray)
+
+    instruction_label.place(x=300, y=50, anchor=CENTER)
+
+    root.mainloop()
+
+
 try:
-    startup()
+    get_std_name()
 finally:
     os.system("rm " + name.get())
     if language == "java":

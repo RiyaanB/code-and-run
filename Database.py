@@ -27,9 +27,9 @@ class DatabaseConnection:
     def create_table(self):
         questions_table_command = "CREATE TABLE IF NOT EXISTS questions(id serial PRIMARY KEY, qname VARCHAR(256) NOT NULL, description VARCHAR(1024))"
         self.cursor.execute(questions_table_command)
-        testcases_table_command = "CREATE TABLE IF NOT EXISTS testcases(qname VARCHAR(256) , inputs VARCHAR(256), out VARCHAR(256))"
+        testcases_table_command = "CREATE TABLE IF NOT EXISTS testcases(qid VARCHAR(256) , inputs VARCHAR(256), out VARCHAR(256))"
         self.cursor.execute(testcases_table_command)
-        attempts_table_command = "CREATE TABLE IF NOT EXISTS attempts(qname VARCHAR(256), student VARCHAR(256), time TIMESTAMP, successful INTEGER, total INTEGER )"
+        attempts_table_command = "CREATE TABLE IF NOT EXISTS attempts(qid VARCHAR(256), student VARCHAR(256), time TIMESTAMP, successful INTEGER, total INTEGER )"
         self.cursor.execute(attempts_table_command)
 
     def insert_question(self, question):
@@ -38,14 +38,17 @@ class DatabaseConnection:
         if bool:
             command = "INSERT INTO questions(qname, description) VALUES ('" + question.name + "', '" + question.description + "')"
             self.cursor.execute(command)
+            command = "SELECT id from questions WHERE qname='" + question.name + "'"
+            self.cursor.execute(command)
+            my_id = self.cursor.fetchall()[0][0]
             for test_case in question.test_cases:
-                self.insert_testcase(test_case, question.name)
+                self.insert_testcase(test_case, my_id)
             return True
         else:
             return False
 
-    def insert_testcase(self, test_case, qname):
-        command = "INSERT INTO testcases(qname, inputs, out) VALUES ('" + qname + "', '" + test_case.inputs + "', '" + test_case.output + "')"
+    def insert_testcase(self, test_case, my_id):
+        command = "INSERT INTO testcases(qid, inputs, out) VALUES ('" + str(my_id) + "', '" + test_case.inputs + "', '" + test_case.output + "')"
         self.cursor.execute(command)
 
     def get_all_questions(self):
@@ -57,7 +60,10 @@ class DatabaseConnection:
         return questions
 
     def get_testcases(self, qname):
-        command = "SELECT inputs,out FROM testcases WHERE qname='" + qname + "'"
+        command = "SELECT id FROM questions WHERE qname='" + qname + "'"
+        self.cursor.execute(command)
+        my_id = self.cursor.fetchall()[0][0]
+        command = "SELECT inputs,out FROM testcases WHERE qid='" + str(my_id) + "'"
         self.cursor.execute(command)
         query = self.cursor.fetchall()
         testcases = []
