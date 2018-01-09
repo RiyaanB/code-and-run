@@ -11,7 +11,6 @@ gray = '#3f3f3f'
 light_gray = '#6f6f6f'
 white = '#ffffff'
 
-
 editor = None
 output = None
 inputs = None
