@@ -431,6 +431,7 @@ def get_std_name():
 
 try:
     database_connection = DatabaseConnection()
+    database_connection.print_attempts()
     get_std_name()
 finally:
     os.system("rm " + name.get())
