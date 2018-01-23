@@ -45,7 +45,9 @@ question4 = Question("Even Fibonnacci numbers", q4)
 
 question4.add_case("", "4613732")
 
-question5 = Question("Print Hello World N times", "Input N and print Hello, World! 10 times")
+question5 = Question("Print Hello World N times", "Input N and print Hello, World! N times")
 question5.add_case("1","Hello, World!")
 question5.add_case("0","")
 question5.add_case("2","Hello, World!\nHello, World!")
+
+
